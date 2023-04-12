@@ -1,11 +1,11 @@
-from property import Property
+import property
 
 
 class Player:
     def __init__(self, player_id: int, balance=1500, position=0, properties=None):
         self.balance = balance
         self.position = position
-        self.properties: list[Property] = properties or []
+        self.properties: list[property.Property] = properties or []
         self.ID = player_id
 
     def __str__(self):
@@ -18,7 +18,7 @@ class Player:
         self.balance -= amount
         recipient.balance += amount
 
-    def buy(self, property: Property):
+    def buy(self, property: property.Property):
         self.balance -= property.value
         self.properties.append(property)
         property.owner = self.ID

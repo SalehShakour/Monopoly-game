@@ -1,17 +1,16 @@
 # create players
 import copy
 
-from game import Game
-from player import Player
-from property import Property
+import game
+import player
 
-player1 = Player(0)
-player2 = Player(1)
+player1 = player.Player(0)
+player2 = player.Player(1)
 
 # create properties
 
 
 # create game and add players and properties
-game = Game([player1, player2])
+game = game.Game([player1, player2])
 
 game.play_game()

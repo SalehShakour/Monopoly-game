@@ -8,7 +8,7 @@ class MonopolyTree:
         self.rootNode = root_node
         self.leafs: List[Node] = []
 
-    def generate_tree(self, depth: int) -> Node:
+    def generate_tree(self, depth: int):
         self.generate_subtree(self.rootNode, depth, 0)
         return self.rootNode
 
@@ -24,4 +24,5 @@ class MonopolyTree:
             return
 
         for n in next_states:
+            n.round += 1
             self.generate_subtree(n, depth, current_depth + 1)
