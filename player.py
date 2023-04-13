@@ -18,12 +18,21 @@ class Player:
         self.balance -= amount
         recipient.balance += amount
 
-    def buy(self, property: property.Property):
+    def buy(self, property):
         self.balance -= property.value
         self.properties.append(property)
         property.owner = self.ID
 
     def sell(self, property):
-        self.balance += property.value * .8
-        self.properties.remove(property)
-        property.owner = 0
+        # try:
+            for item in self.properties:
+                if item.position == property.position:
+                    self.properties.remove(item)
+                    item.owner = None
+                    self.balance += (item.value * .9)
+        #
+        # except:
+        #     for i in self.properties:
+        #         print(i.position)
+        #     print("---------")
+        #     print(property.position)

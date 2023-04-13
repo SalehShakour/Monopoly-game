@@ -28,8 +28,8 @@ properties_with_tax = random.sample(property_names, 5)
 for i in range(len(property_names)):
     if property_names[i] in properties_with_tax:
         tax = random.randint(10, 50)  # random tax between 10 and 50
-        property_obj = Property(property_names[i], i * 10 + 50, i + 1)
+        property_obj = Property(property_names[i], i * 10 + 50, i)
         property_obj.tax = tax
     else:
-        property_obj = Property(property_names[i], i * 10 + 50, i + 1)
+        property_obj = Property(property_names[i], i * 10 + 50, i)
     properties.append(property_obj)

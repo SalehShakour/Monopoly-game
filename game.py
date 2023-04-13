@@ -1,4 +1,5 @@
 import random
+import sys
 
 import player
 import property
@@ -12,17 +13,6 @@ class Game:
         self.current_player = players[0]
         self.turn = 0
         self.properties = property.properties  # Add this line to define the 'board' attribute
-        # Add all properties to the board list
-        # prop1 = property.Property("Boardwalk", 400, 50, 100, 1)
-        # prop2 = property.Property("Park Place", 350, 35, 70, 2)
-        # prop3 = property.Property("Baltic Avenue", 60, 4, 20, 3)
-        # prop4 = property.Property("Mediterranean Avenue", 60, 2, 10, 4)
-        # self.properties.append(prop1)
-        # self.properties.append(prop2)
-        # self.properties.append(prop3)
-        # self.properties.append(prop4)
-
-        # Add more properties to the board list
 
     def roll_dice(self):
         die = random.randint(1, 6)
@@ -40,12 +30,12 @@ class Game:
 
         current_node = root
         while True:
-            if current_node.current_player.balance > 2000 or current_node.second_player.balance == 0:
+            if current_node.current_player.balance > 2000 or current_node.second_player.balance < 0:
                 print(f"player {current_node.current_player.ID} win !")
-                break
-            elif current_node.current_player.balance < -500 or current_node.second_player.balance == 0:
+                sys.exit(0)
+            elif current_node.current_player.balance < 0 or current_node.second_player.balance >2000:
                 print(f"player {current_node.second_player.ID} win !")
-                break
+                sys.exit(0)
 
             if len(current_node.action) == 0:
                 mono_tree = tree.MonopolyTree(current_node)

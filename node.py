@@ -1,5 +1,6 @@
 import collections
 import copy
+import math
 import sys
 
 
@@ -23,16 +24,44 @@ class Node:
         heuristic_one = 0
         heuristic_zero = 0
 
-        if zero.balance < 150: heuristic_zero -= 500
-        if one.balance < 150: heuristic_one -= 500
+        # if len(zero.properties) > 0:
+        #     property_value_zero = math.sqrt(math.prod(prop.value for prop in zero.properties)) / sum(
+        #         prop.value for prop in zero.properties)
+        #     rent_earned_zero = math.sqrt(math.prod(prop.rent for prop in zero.properties)) / sum(
+        #         prop.rent for prop in zero.properties)
+        # else:
+        #     property_value_zero = sum(
+        #         prop.value for prop in zero.properties)
+        #     rent_earned_zero = sum(
+        #         prop.rent for prop in zero.properties)
 
-        property_value_zero = sum(prop.value for prop in zero.properties)
+        property_value_zero = sum(
+            prop.value for prop in zero.properties)
+        rent_earned_zero = sum(
+            prop.rent for prop in zero.properties)
+
+        # if len(one.properties) > 0:
+        #     property_value_one = math.sqrt(math.prod(prop.value for prop in one.properties)) / sum(
+        #         prop.value for prop in one.properties)
+        #
+        #     # calculate the total rent earned by player from properties
+        #     rent_earned_one = math.sqrt(math.prod(prop.rent for prop in one.properties)) / sum(
+        #         prop.rent for prop in one.properties)
+        # else:
+        #     property_value_one = sum(prop.value for prop in one.properties)
+        #     # calculate the total rent earned by player from properties
+        #     rent_earned_one = sum(prop.rent for prop in one.properties)
         property_value_one = sum(prop.value for prop in one.properties)
-
         # calculate the total rent earned by player from properties
-        rent_earned_zero = sum(prop.rent for prop in zero.properties)
         rent_earned_one = sum(prop.rent for prop in one.properties)
 
+        self.zero_value = heuristic_zero + property_value_zero + 10*rent_earned_zero + zero.balance
+        self.one_value = heuristic_one + property_value_one + 10*rent_earned_one + one.balance
+
+        if zero.balance < 200:
+            self.zero_value = heuristic_zero + property_value_zero + 10*rent_earned_zero + 10000*zero.balance
+        if one.balance < 200:
+            self.one_value = heuristic_one + property_value_one + 10*rent_earned_one + 10000*one.balance
         return self.zero_value, self.one_value
 
     @staticmethod
@@ -126,7 +155,7 @@ class Node:
             cp_properties_sell = copy.deepcopy(self.properties)
             cp_current_player_sell = copy.deepcopy(self.current_player)
             cp_second_player_sell = copy.deepcopy(self.second_player)
-            if cp_properties_sell[cp_current_player_sell.position] in cp_current_player_sell.properties:
+            if cp_properties_sell[cp_current_player_sell.position].owner == cp_current_player_sell.ID:
                 cp_current_player_sell.sell(cp_properties_sell[cp_current_player_sell.position])
 
                 new_node = Node(cp_properties_sell, cp_second_player_sell, cp_current_player_sell, node_type="chance",
@@ -141,7 +170,7 @@ class Node:
             if cp_properties_rent[cp_current_player_rent.position].owner == (cp_current_player_rent.ID + 1) % 2:
                 cp_current_player_rent.pay_rent(cp_properties_rent[cp_current_player_rent.position].rent,
                                                 cp_second_player_rent)
-                new_node = Node(cp_properties_sell, cp_second_player_sell, cp_current_player_sell, node_type="chance",
+                new_node = Node(cp_properties_rent, cp_second_player_rent, cp_current_player_rent, node_type="chance",
                                 parent=self)
                 self.action.append(("rent", new_node))
                 self.children.append(new_node)
@@ -150,10 +179,10 @@ class Node:
             cp_properties_nothing = copy.deepcopy(self.properties)
             cp_current_player_nothing = copy.deepcopy(self.current_player)
             cp_second_player_nothing = copy.deepcopy(self.second_player)
-
-            new_node = Node(cp_properties_nothing, cp_second_player_nothing, cp_current_player_nothing,
-                            node_type="chance", parent=self)
-            self.action.append(("nothing", new_node))
-            self.children.append(new_node)
+            if cp_properties_nothing[cp_current_player_nothing.position].owner != (cp_current_player_rent.ID + 1) % 2:
+                new_node = Node(cp_properties_nothing, cp_second_player_nothing, cp_current_player_nothing,
+                                node_type="chance", parent=self)
+                self.action.append(("nothing", new_node))
+                self.children.append(new_node)
 
         return self.children
