@@ -20,60 +20,18 @@ class Node:
         one = self.second_player if self.second_player.ID == 1 else self.current_player
         zero = self.current_player if self.current_player.ID == 0 else self.second_player
         total_cash = one.balance + zero.balance
-        total_cash_gain_zero = zero.balance - 1500
-        total_cash_gain_one = one.balance - 1500
-        if self.round == 0 or total_cash == 0:
-            avg_cash_per_round = 0
-        else:
-            avg_cash_per_round = ((total_cash_gain_one + total_cash_gain_zero) / 2) / self.round
+        heuristic_one = 0
+        heuristic_zero = 0
 
-        PctDiff = 100 * abs(one.balance - zero.balance) / total_cash
-        if avg_cash_per_round == 0:
-            num_turns_left = -1
-        else:
-            num_turns_left = (total_cash / avg_cash_per_round) * (1 - PctDiff / 100) - 400
+        if zero.balance < 150: heuristic_zero -= 500
+        if one.balance < 150: heuristic_one -= 500
 
-        if num_turns_left == 0:
-            if self.current_player.balance == 0:
-                print(f"player with id={self.second_player.ID} win ! (Remaining cash ={self.second_player.balance})")
-            else: print(f"player with id={self.current_player.ID} win ! (Remaining cash ={self.current_player.balance})")
-
-            sys.exit(0)
-
-        properties = zero.properties
-        cash = zero.balance
-
-        # calculate the total value of player's properties
-        property_value = sum(prop.value for prop in properties)
+        property_value_zero = sum(prop.value for prop in zero.properties)
+        property_value_one = sum(prop.value for prop in one.properties)
 
         # calculate the total rent earned by player from properties
-        rent_earned = sum(prop.rent for prop in properties)
-
-        # calculate the net worth of the player
-        net_worth = cash + property_value
-
-        # calculate the number of properties owned by the player
-        num_properties = len(properties)
-
-        # calculate the number of turns left in the game
-
-        # calculate the average rent earned by the player per turn
-        avg_rent_per_turn = rent_earned / (2 * num_turns_left)
-
-        # calculate the heuristic value of the player
-        heuristic_value = net_worth + avg_rent_per_turn * num_properties
-
-        self.zero_value = 1500 - heuristic_value
-        # --------------
-        properties = one.properties
-        cash = one.balance
-        property_value = sum(prop.value for prop in properties)
-        rent_earned = sum(prop.rent for prop in properties)
-        net_worth = cash + property_value
-        num_properties = len(properties)
-        avg_rent_per_turn = rent_earned / (2 * num_turns_left)
-        heuristic_value = net_worth + avg_rent_per_turn * num_properties
-        self.one_value = 1500 - heuristic_value
+        rent_earned_zero = sum(prop.rent for prop in zero.properties)
+        rent_earned_one = sum(prop.rent for prop in one.properties)
 
         return self.zero_value, self.one_value
 
