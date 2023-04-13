@@ -5,7 +5,7 @@ import game
 import player
 
 player1 = player.Player(0)
-player2 = player.Player(1)
+player2 = player.Player(1,position=1)
 
 # create properties
 

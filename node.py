@@ -1,5 +1,6 @@
 import collections
 import copy
+import sys
 
 
 class Node:
@@ -10,7 +11,7 @@ class Node:
         self.node_type = node_type
         self.children: list[Node] = []
         self.parent: Node = parent
-        self.action = None
+        self.action = []
         self.zero_value = 0
         self.one_value = 0
         self.round = 0
@@ -24,13 +25,20 @@ class Node:
         if self.round == 0 or total_cash == 0:
             avg_cash_per_round = 0
         else:
-            avg_cash_per_round = ((total_cash_gain_one+total_cash_gain_zero)/2) / self.round
+            avg_cash_per_round = ((total_cash_gain_one + total_cash_gain_zero) / 2) / self.round
 
         PctDiff = 100 * abs(one.balance - zero.balance) / total_cash
         if avg_cash_per_round == 0:
-            num_turns_left = 200
+            num_turns_left = -1
         else:
-            num_turns_left = (total_cash / avg_cash_per_round) * (1 - PctDiff / 100)
+            num_turns_left = (total_cash / avg_cash_per_round) * (1 - PctDiff / 100) - 400
+
+        if num_turns_left == 0:
+            if self.current_player.balance == 0:
+                print(f"player with id={self.second_player.ID} win ! (Remaining cash ={self.second_player.balance})")
+            else: print(f"player with id={self.current_player.ID} win ! (Remaining cash ={self.current_player.balance})")
+
+            sys.exit(0)
 
         properties = zero.properties
         cash = zero.balance
@@ -55,7 +63,7 @@ class Node:
         # calculate the heuristic value of the player
         heuristic_value = net_worth + avg_rent_per_turn * num_properties
 
-        self.zero_value = heuristic_value
+        self.zero_value = 1500 - heuristic_value
         # --------------
         properties = one.properties
         cash = one.balance
@@ -65,7 +73,7 @@ class Node:
         num_properties = len(properties)
         avg_rent_per_turn = rent_earned / (2 * num_turns_left)
         heuristic_value = net_worth + avg_rent_per_turn * num_properties
-        self.one_value = heuristic_value
+        self.one_value = 1500 - heuristic_value
 
         return self.zero_value, self.one_value
 
@@ -73,16 +81,16 @@ class Node:
     def Eval(tree):
         for node in tree.leafs:
             node.utility()
-
         parent_nodes = set(i.parent for i in tree.leafs)
-        while len(parent_nodes)>0:
+        while len(parent_nodes) > 0:
+
             new_parent_node: set[Node] = set()
             for node in parent_nodes:
                 if node.node_type == "chance":
                     for child in node.children:
                         node.zero_value += child.zero_value / 6
                         node.one_value += child.one_value / 6
-                        new_parent_node.add(child)
+
                 else:
                     node.zero_value = float('-inf')
                     node.one_value = float('-inf')
@@ -90,7 +98,10 @@ class Node:
                         node.zero_value = max(node.zero_value, child.zero_value)
                         node.one_value = max(node.one_value, child.one_value)
                         new_parent_node.add(child)
-            parent_nodes = new_parent_node
+
+            parent_nodes = set(i.parent for i in parent_nodes)
+            if len(parent_nodes) == 1 and None in parent_nodes:
+                break
 
     def levelOrderTraversal(self):
         ans = []
@@ -135,7 +146,7 @@ class Node:
                 cp_current_player.position = (cp_current_player.position + i) % len(cp_properties)
 
                 new_node = Node(cp_properties, cp_current_player, cp_second_player, node_type="not-chance", parent=self)
-                new_node.action = i
+                self.action.append((i, new_node))
                 self.children.append(new_node)
 
         else:
@@ -149,19 +160,20 @@ class Node:
 
                 new_node = Node(cp_properties_buy, cp_second_player_buy, cp_current_player_buy, node_type="chance",
                                 parent=self)
-                new_node.action = f"after buying action of player {cp_current_player_buy.ID}"
+                self.action.append(("buy", new_node))
+
                 self.children.append(new_node)
 
             # sell
             cp_properties_sell = copy.deepcopy(self.properties)
             cp_current_player_sell = copy.deepcopy(self.current_player)
             cp_second_player_sell = copy.deepcopy(self.second_player)
-            if cp_properties_sell[cp_current_player_buy.position].owner == cp_current_player_sell.ID:
+            if cp_properties_sell[cp_current_player_sell.position] in cp_current_player_sell.properties:
                 cp_current_player_sell.sell(cp_properties_sell[cp_current_player_sell.position])
 
                 new_node = Node(cp_properties_sell, cp_second_player_sell, cp_current_player_sell, node_type="chance",
                                 parent=self)
-                new_node.action = f"after selling action of player {cp_current_player_buy.ID}"
+                self.action.append(("sell", new_node))
                 self.children.append(new_node)
 
             # rent
@@ -173,7 +185,7 @@ class Node:
                                                 cp_second_player_rent)
                 new_node = Node(cp_properties_sell, cp_second_player_sell, cp_current_player_sell, node_type="chance",
                                 parent=self)
-                new_node.action = f"after paying rent action of player {cp_current_player_buy.ID}"
+                self.action.append(("rent", new_node))
                 self.children.append(new_node)
 
             # do nothing
@@ -183,7 +195,7 @@ class Node:
 
             new_node = Node(cp_properties_nothing, cp_second_player_nothing, cp_current_player_nothing,
                             node_type="chance", parent=self)
-            new_node.action = f"after do nothing action of player {cp_current_player_buy.ID}"
+            self.action.append(("nothing", new_node))
             self.children.append(new_node)
 
         return self.children
