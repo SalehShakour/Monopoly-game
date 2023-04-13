@@ -1,7 +1,5 @@
 import collections
 import copy
-import math
-import sys
 
 
 class Node:
@@ -23,45 +21,22 @@ class Node:
         total_cash = one.balance + zero.balance
         heuristic_one = 0
         heuristic_zero = 0
-
-        # if len(zero.properties) > 0:
-        #     property_value_zero = math.sqrt(math.prod(prop.value for prop in zero.properties)) / sum(
-        #         prop.value for prop in zero.properties)
-        #     rent_earned_zero = math.sqrt(math.prod(prop.rent for prop in zero.properties)) / sum(
-        #         prop.rent for prop in zero.properties)
-        # else:
-        #     property_value_zero = sum(
-        #         prop.value for prop in zero.properties)
-        #     rent_earned_zero = sum(
-        #         prop.rent for prop in zero.properties)
-
         property_value_zero = sum(
             prop.value for prop in zero.properties)
         rent_earned_zero = sum(
             prop.rent for prop in zero.properties)
 
-        # if len(one.properties) > 0:
-        #     property_value_one = math.sqrt(math.prod(prop.value for prop in one.properties)) / sum(
-        #         prop.value for prop in one.properties)
-        #
-        #     # calculate the total rent earned by player from properties
-        #     rent_earned_one = math.sqrt(math.prod(prop.rent for prop in one.properties)) / sum(
-        #         prop.rent for prop in one.properties)
-        # else:
-        #     property_value_one = sum(prop.value for prop in one.properties)
-        #     # calculate the total rent earned by player from properties
-        #     rent_earned_one = sum(prop.rent for prop in one.properties)
         property_value_one = sum(prop.value for prop in one.properties)
         # calculate the total rent earned by player from properties
         rent_earned_one = sum(prop.rent for prop in one.properties)
 
-        self.zero_value = heuristic_zero + property_value_zero + 10*rent_earned_zero + zero.balance
-        self.one_value = heuristic_one + property_value_one + 10*rent_earned_one + one.balance
+        self.zero_value = heuristic_zero + property_value_zero + 10 * rent_earned_zero + zero.balance
+        self.one_value = heuristic_one + property_value_one + 10 * rent_earned_one + one.balance
 
         if zero.balance < 200:
-            self.zero_value = heuristic_zero + property_value_zero + 10*rent_earned_zero + 10000*zero.balance
+            self.zero_value = heuristic_zero + property_value_zero + 10 * rent_earned_zero + 10000 * zero.balance
         if one.balance < 200:
-            self.one_value = heuristic_one + property_value_one + 10*rent_earned_one + 10000*one.balance
+            self.one_value = heuristic_one + property_value_one + 10 * rent_earned_one + 10000 * one.balance
         return self.zero_value, self.one_value
 
     @staticmethod
@@ -132,7 +107,7 @@ class Node:
                 cp_second_player = copy.deepcopy(self.second_player)
                 cp_current_player.position = (cp_current_player.position + i) % len(cp_properties)
 
-                new_node = Node(cp_properties, cp_current_player, cp_second_player, node_type="not-chance", parent=self)
+                new_node = Node(cp_properties, cp_current_player, cp_second_player, node_type="non-chance", parent=self)
                 self.action.append((i, new_node))
                 self.children.append(new_node)
 

@@ -25,7 +25,11 @@ class Game:
     def play_game(self):
         root = Node(self.properties, self.players[0], self.players[1], "non-chance", None)
         mono_tree = tree.MonopolyTree(root)
-        mono_tree.generate_tree(8)
+
+        # The higher the level of intelligence, the more time it takes to make a decision,
+        # but the decisions are more rational.
+        intelligence_level = 8
+        mono_tree.generate_tree(intelligence_level)
         Node.Eval(mono_tree)
 
         current_node = root
@@ -33,13 +37,13 @@ class Game:
             if current_node.current_player.balance > 2000 or current_node.second_player.balance < 0:
                 print(f"player {current_node.current_player.ID} win !")
                 sys.exit(0)
-            elif current_node.current_player.balance < 0 or current_node.second_player.balance >2000:
+            elif current_node.current_player.balance < 0 or current_node.second_player.balance > 2000:
                 print(f"player {current_node.second_player.ID} win !")
                 sys.exit(0)
 
             if len(current_node.action) == 0:
                 mono_tree = tree.MonopolyTree(current_node)
-                mono_tree.generate_tree(8)
+                mono_tree.generate_tree(intelligence_level)
                 Node.Eval(mono_tree)
             if current_node.node_type == "chance":
                 dice = self.roll_dice()
@@ -50,11 +54,12 @@ class Game:
                 if current_node.current_player.ID == 0:
                     current_node.action.sort(key=lambda tup: tup[1].zero_value, reverse=True)
                     print(
-                        f"zero {current_node.action[0][0]} ( position: {current_node.properties[current_node.current_player.position].name} ) (cash:{current_node.current_player.balance})")
+                        f"{current_node.action[0][0]} ( position: {current_node.properties[current_node.current_player.position].name} ) (cash before action:{current_node.current_player.balance})")
                     current_node = current_node.action[0][1]
 
                 else:
                     current_node.action.sort(key=lambda tup: tup[1].one_value, reverse=True)
                     print(
-                        f"one {current_node.action[0][0]} ( position: {current_node.properties[current_node.current_player.position].name} ) (cash:{current_node.current_player.balance})")
+                        f"{current_node.action[0][0]} ( position: {current_node.properties[current_node.current_player.position].name} ) (cash before action:{current_node.current_player.balance})")
                     current_node = current_node.action[0][1]
+                print()
