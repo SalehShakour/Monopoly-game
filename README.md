@@ -24,5 +24,7 @@ To run the game, simply run the `main.py` file.
 
 That's all you need to know to start playing Monopoly with an AI twist. Have fun!
 
-##Credits
+
+## Credits
+
 This project is created by Saleh Shakour.
