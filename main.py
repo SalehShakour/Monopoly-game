@@ -1,16 +1,22 @@
 # create players
 import copy
+import random
 
 import game
 import player
 
-player1 = player.Player(0)
-player2 = player.Player(1,position=1)
+player_zero = player.Player(0)
+player_one = player.Player(1)
 
-# create properties
+# roll dies in start
+dies_zero = random.randint(1, 6)
 
 
-# create game and add players and properties
-game = game.Game([player1, player2])
+# set position
+player_zero.position = dies_zero
+print(f"player zero got {dies_zero}")
+
+# create game and add players
+game = game.Game([player_zero, player_one])
 
 game.play_game()

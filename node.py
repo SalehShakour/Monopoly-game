@@ -18,9 +18,6 @@ class Node:
     def utility(self):
         one = self.second_player if self.second_player.ID == 1 else self.current_player
         zero = self.current_player if self.current_player.ID == 0 else self.second_player
-        total_cash = one.balance + zero.balance
-        heuristic_one = 0
-        heuristic_zero = 0
         property_value_zero = sum(
             prop.value for prop in zero.properties)
         rent_earned_zero = sum(
@@ -30,13 +27,13 @@ class Node:
         # calculate the total rent earned by player from properties
         rent_earned_one = sum(prop.rent for prop in one.properties)
 
-        self.zero_value = heuristic_zero + property_value_zero + 10 * rent_earned_zero + zero.balance
-        self.one_value = heuristic_one + property_value_one + 10 * rent_earned_one + one.balance
+        self.zero_value = property_value_zero + 10 * rent_earned_zero + zero.balance
+        self.one_value = property_value_one + 10 * rent_earned_one + one.balance
 
         if zero.balance < 200:
-            self.zero_value = heuristic_zero + property_value_zero + 10 * rent_earned_zero + 10000 * zero.balance
+            self.zero_value = property_value_zero + 10 * rent_earned_zero + 10000 * zero.balance
         if one.balance < 200:
-            self.one_value = heuristic_one + property_value_one + 10 * rent_earned_one + 10000 * one.balance
+            self.one_value = property_value_one + 10 * rent_earned_one + 10000 * one.balance
         return self.zero_value, self.one_value
 
     @staticmethod
